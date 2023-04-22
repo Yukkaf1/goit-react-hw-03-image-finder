@@ -111,7 +111,6 @@ export class App extends Component {
 
     return (
       <Box>
-        <p>Search</p>
         <Searchbar onSubmit={this.handleFormSubmit} />
         <ImageGallery images={images} onClick={this.handleImgClick} />
         {showLoadMore && <Button onLoadMore={this.loadMore} />}
