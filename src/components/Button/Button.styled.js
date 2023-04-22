@@ -10,6 +10,7 @@ export const ButtonLoadMore = styled.button`
   border-radius: 10px;
   border: none;
   text-align: center;
+  width: 200px;
   :hover,
   :focus {
     background-color: #303f9f;
