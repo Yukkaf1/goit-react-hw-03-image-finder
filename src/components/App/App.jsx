@@ -62,23 +62,6 @@ export class App extends Component {
     }
 
     this.setState({ page: 1, query: keyword, images: [], totalImages: 0 });
-
-    if (query === keyword && page === 1) {
-      try {
-        this.setState({ isLoading: true });
-
-        const images = await API.getImages(query, page);
-        console.log(query);
-        console.log(images);
-
-        this.setState({
-          images: [...images.hits],
-          isLoading: false,
-        });
-      } catch (error) {
-        this.setState({ error: true, isLoading: false });
-      }
-    }
   };
 
   loadMore = () => {
