@@ -19,6 +19,7 @@ export class App extends Component {
     showModal: false,
     currImg: null,
     showLoadMore: false,
+    totalImages: 0,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -30,28 +31,22 @@ export class App extends Component {
 
         const images = await API.getImages(query, page);
 
-        if (images.totalHits > API.perPage) {
-          this.setState({ showLoadMore: true });
-        }
-
-        if (page + 1 > Math.ceil(images.totalHits / API.perPage)) {
-          this.setState({ isLoading: false, showLoadMore: false });
-        }
-
         if (images.total === 0) {
           toast.warn('Your search did not return any results.', {
             theme: 'dark',
           });
-          this.setState({ isLoading: false });
+
           return;
         }
 
         this.setState(prevState => ({
           images: [...prevState.images, ...images.hits],
-          isLoading: false,
+          totalImages: images.totalHits,
         }));
       } catch (error) {
-        this.setState({ error: true, isLoading: false });
+        this.setState({ error: true });
+      } finally {
+        this.setState({ isLoading: false });
       }
     }
   }
@@ -66,7 +61,7 @@ export class App extends Component {
       return;
     }
 
-    this.setState({ page: 1, query: keyword, images: [] });
+    this.setState({ page: 1, query: keyword, images: [], totalImages: 0 });
 
     if (query === keyword && page === 1) {
       try {
@@ -90,10 +85,8 @@ export class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  toggleModal = (currImg = null) => {
+    this.setState({ currImg });
   };
 
   handleImgClick = (largeImageURL, tags) => {
@@ -101,17 +94,22 @@ export class App extends Component {
     this.setState({ currImg: { largeImageURL, tags } });
   };
 
+  closeModal = () => {
+    this.toggleModal();
+    this.setState({ currImg: null });
+  };
+
   render() {
-    const { images, isLoading, showModal, currImg, error, showLoadMore } =
-      this.state;
+    const { images, isLoading, currImg, error, totalImages } = this.state;
+    const showLoadMore = !isLoading && images.length !== totalImages;
 
     return (
       <Box>
         <Searchbar onSubmit={this.handleFormSubmit} />
-        <ImageGallery images={images} onClick={this.handleImgClick} />
+        <ImageGallery images={images} onClick={this.toggleModal} />
         {showLoadMore && <Button onLoadMore={this.loadMore} />}
         <Loader isLoading={isLoading} />
-        {showModal && (
+        {currImg && (
           <Modal
             onClose={this.toggleModal}
             link={currImg.largeImageURL}
