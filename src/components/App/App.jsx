@@ -22,23 +22,19 @@ export class App extends Component {
   };
 
   async componentDidUpdate(_, prevState) {
-    const prevQuery = prevState.query;
-    const nextQuery = this.state.query;
+    const { query, page } = this.state;
 
-    const prevPage = prevState.page;
-    const nextPage = this.state.page;
-
-    if (prevPage !== nextPage || prevQuery !== nextQuery) {
+    if (prevState.page !== page || prevState.query !== query) {
       try {
         this.setState({ isLoading: true });
 
-        const images = await API.getImages(nextQuery, nextPage);
+        const images = await API.getImages(query, page);
 
         if (images.totalHits > API.perPage) {
           this.setState({ showLoadMore: true });
         }
 
-        if (nextPage + 1 > Math.ceil(images.totalHits / API.perPage)) {
+        if (page + 1 > Math.ceil(images.totalHits / API.perPage)) {
           this.setState({ isLoading: false, showLoadMore: false });
         }
 
